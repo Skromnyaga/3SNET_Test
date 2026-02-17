@@ -3,6 +3,45 @@ const { EventWidgetPage } = require('../pages/EventWidgetPage');
 const { eventsWidgetData } = require('../fixtures/eventswidget.data');
 
 test.describe('3SNET events widget constructor', () => {
+  test.beforeEach(async ({ page }, testInfo) => {
+    testInfo._pageErrors = [];
+    testInfo._consoleErrors = [];
+
+    page.on('pageerror', (error) => {
+      testInfo._pageErrors.push(error);
+    });
+
+    page.on('console', (message) => {
+      if (message.type() === 'error') {
+        testInfo._consoleErrors.push(message.text());
+      }
+    });
+  });
+
+  test.afterEach(async ({}, testInfo) => {
+    const pageErrors = testInfo._pageErrors || [];
+    const consoleErrors = testInfo._consoleErrors || [];
+
+    if (pageErrors.length === 0 && consoleErrors.length === 0) {
+      return;
+    }
+
+    const details = [
+      'Page errors:',
+      ...pageErrors.map((error) => `- ${error.stack || error.message || String(error)}`),
+      '',
+      'Console errors:',
+      ...consoleErrors.map((error) => `- ${error}`),
+    ].join('\n');
+
+    await testInfo.attach('runtime-errors', {
+      body: details,
+      contentType: 'text/plain',
+    });
+
+    throw new Error('Detected page or console errors during the test run.');
+  });
+
   test('loads constructor UI and default iframe embed code', async ({ page }) => {
     const eventWidgetPage = new EventWidgetPage(page);
 

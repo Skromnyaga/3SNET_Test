@@ -9,7 +9,7 @@ module.exports = defineConfig({
   },
   fullyParallel: false,
   retries: process.env.CI ? 2 : 0,
-  reporter: [['list'], ['html', { open: 'never' }]],
+  reporter: [['list'], ['html', { open: 'never' }], ['allure-playwright']],
   use: {
     baseURL: 'https://dev.3snet.info',
     trace: 'on-first-retry',
