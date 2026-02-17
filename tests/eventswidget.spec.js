@@ -28,29 +28,29 @@ test.describe('3SNET events widget constructor', () => {
     }
 
     const details = [
-      'Ошибки страницы:',
+      'Page errors:',
       ...pageErrors.map((error) => `- ${error.stack || error.message || String(error)}`),
       '',
-      'Ошибки консоли:',
+      'Console errors:',
       ...consoleErrors.map((error) => `- ${error}`),
     ].join('\n');
 
-    await testInfo.attach('Ошибки рантайма', {
+    await testInfo.attach('Runtime errors', {
       body: details,
       contentType: 'text/plain',
     });
 
-    throw new Error('Обнаружены ошибки страницы или консоли во время прогона теста.');
+    throw new Error('Detected page or console errors during the test run.');
   });
 
   test('loads constructor UI and default iframe embed code', async ({ page }) => {
     const eventWidgetPage = new EventWidgetPage(page);
 
-    await step('Открыть страницу конструктора', async () => {
+    await step('Open the constructor page', async () => {
       await eventWidgetPage.open();
     });
 
-    await step('Проверить заголовок и ключевые элементы UI', async () => {
+    await step('Verify title and key UI elements', async () => {
       await expect(page).toHaveTitle(eventsWidgetData.expectedTitlePattern);
       await expect(eventWidgetPage.heading).toBeVisible();
       await expect(eventWidgetPage.topicSelect).toBeVisible();
@@ -59,7 +59,7 @@ test.describe('3SNET events widget constructor', () => {
       await expect(eventWidgetPage.countrySelect).toHaveValue(eventsWidgetData.defaultCountryValue);
     });
 
-    await step('Проверить базовую валидность embed-кода', async () => {
+    await step('Validate the default embed code', async () => {
       await expect(eventWidgetPage.embedCodeTextarea).toBeVisible();
       await expect(eventWidgetPage.embedCodeTextarea).toHaveValue(
         eventsWidgetData.embedCodePatterns.iframeTag,
@@ -73,22 +73,22 @@ test.describe('3SNET events widget constructor', () => {
   test('regenerates iframe code when custom width and height are set', async ({ page }) => {
     const eventWidgetPage = new EventWidgetPage(page);
 
-    await step('Открыть страницу конструктора', async () => {
+    await step('Open the constructor page', async () => {
       await eventWidgetPage.open();
     });
 
-    await step('Задать фиксированные ширину и высоту', async () => {
+    await step('Set fixed width and height', async () => {
       await eventWidgetPage.setFixedSize(
         eventsWidgetData.customSize.width,
         eventsWidgetData.customSize.height,
       );
     });
 
-    await step('Сгенерировать превью', async () => {
+    await step('Generate preview', async () => {
       await eventWidgetPage.generatePreview();
     });
 
-    await step('Проверить обновление embed-кода', async () => {
+    await step('Verify updated embed code', async () => {
       await expect(eventWidgetPage.embedCodeTextarea).toHaveValue(
         new RegExp(`width="${eventsWidgetData.customSize.width}"`),
       );
