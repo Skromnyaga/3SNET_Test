@@ -1,4 +1,5 @@
 const { test, expect } = require('@playwright/test');
+const { step } = require('allure-js-commons');
 const { EventWidgetPage } = require('../pages/EventWidgetPage');
 const { eventsWidgetData } = require('../fixtures/eventswidget.data');
 
@@ -45,33 +46,55 @@ test.describe('3SNET events widget constructor', () => {
   test('loads constructor UI and default iframe embed code', async ({ page }) => {
     const eventWidgetPage = new EventWidgetPage(page);
 
-    await eventWidgetPage.open();
-    await expect(page).toHaveTitle(eventsWidgetData.expectedTitlePattern);
-    await expect(eventWidgetPage.heading).toBeVisible();
-    await expect(eventWidgetPage.topicSelect).toBeVisible();
-    await expect(eventWidgetPage.countrySelect).toBeVisible();
-    await expect(eventWidgetPage.topicSelect).toHaveValue(eventsWidgetData.defaultTopicValue);
-    await expect(eventWidgetPage.countrySelect).toHaveValue(eventsWidgetData.defaultCountryValue);
-    await expect(eventWidgetPage.embedCodeTextarea).toBeVisible();
-    await expect(eventWidgetPage.embedCodeTextarea).toHaveValue(eventsWidgetData.embedCodePatterns.iframeTag);
-    await expect(eventWidgetPage.embedCodeTextarea).toHaveValue(eventsWidgetData.embedCodePatterns.sourceUrl);
+    await step('Открыть страницу конструктора', async () => {
+      await eventWidgetPage.open();
+    });
+
+    await step('Проверить заголовок и ключевые элементы UI', async () => {
+      await expect(page).toHaveTitle(eventsWidgetData.expectedTitlePattern);
+      await expect(eventWidgetPage.heading).toBeVisible();
+      await expect(eventWidgetPage.topicSelect).toBeVisible();
+      await expect(eventWidgetPage.countrySelect).toBeVisible();
+      await expect(eventWidgetPage.topicSelect).toHaveValue(eventsWidgetData.defaultTopicValue);
+      await expect(eventWidgetPage.countrySelect).toHaveValue(eventsWidgetData.defaultCountryValue);
+    });
+
+    await step('Проверить базовую валидность embed-кода', async () => {
+      await expect(eventWidgetPage.embedCodeTextarea).toBeVisible();
+      await expect(eventWidgetPage.embedCodeTextarea).toHaveValue(
+        eventsWidgetData.embedCodePatterns.iframeTag,
+      );
+      await expect(eventWidgetPage.embedCodeTextarea).toHaveValue(
+        eventsWidgetData.embedCodePatterns.sourceUrl,
+      );
+    });
   });
 
   test('regenerates iframe code when custom width and height are set', async ({ page }) => {
     const eventWidgetPage = new EventWidgetPage(page);
 
-    await eventWidgetPage.open();
-    await eventWidgetPage.setFixedSize(
-      eventsWidgetData.customSize.width,
-      eventsWidgetData.customSize.height,
-    );
-    await eventWidgetPage.generatePreview();
+    await step('Открыть страницу конструктора', async () => {
+      await eventWidgetPage.open();
+    });
 
-    await expect(eventWidgetPage.embedCodeTextarea).toHaveValue(
-      new RegExp(`width="${eventsWidgetData.customSize.width}"`),
-    );
-    await expect(eventWidgetPage.embedCodeTextarea).toHaveValue(
-      new RegExp(`height="${eventsWidgetData.customSize.height}"`),
-    );
+    await step('Задать фиксированные ширину и высоту', async () => {
+      await eventWidgetPage.setFixedSize(
+        eventsWidgetData.customSize.width,
+        eventsWidgetData.customSize.height,
+      );
+    });
+
+    await step('Сгенерировать превью', async () => {
+      await eventWidgetPage.generatePreview();
+    });
+
+    await step('Проверить обновление embed-кода', async () => {
+      await expect(eventWidgetPage.embedCodeTextarea).toHaveValue(
+        new RegExp(`width="${eventsWidgetData.customSize.width}"`),
+      );
+      await expect(eventWidgetPage.embedCodeTextarea).toHaveValue(
+        new RegExp(`height="${eventsWidgetData.customSize.height}"`),
+      );
+    });
   });
 });
