@@ -28,19 +28,19 @@ test.describe('3SNET events widget constructor', () => {
     }
 
     const details = [
-      'Page errors:',
+      'Ошибки страницы:',
       ...pageErrors.map((error) => `- ${error.stack || error.message || String(error)}`),
       '',
-      'Console errors:',
+      'Ошибки консоли:',
       ...consoleErrors.map((error) => `- ${error}`),
     ].join('\n');
 
-    await testInfo.attach('runtime-errors', {
+    await testInfo.attach('Ошибки рантайма', {
       body: details,
       contentType: 'text/plain',
     });
 
-    throw new Error('Detected page or console errors during the test run.');
+    throw new Error('Обнаружены ошибки страницы или консоли во время прогона теста.');
   });
 
   test('loads constructor UI and default iframe embed code', async ({ page }) => {
